@@ -95,6 +95,7 @@ var root = {
         var params = {};
         params.id = id;
         return baseDao('item', 'getItemById', params).then(function (obj) {
+            console.log(obj);
             return new Message(id, obj[0]);
         }).catch(function (e) {
             console.log(e);
