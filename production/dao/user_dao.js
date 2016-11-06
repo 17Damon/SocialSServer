@@ -4,36 +4,34 @@
 
 'use strict';
 
-//加载util路径
-
-module.paths.push('./util');
 //permission to kill
+
 var tokill = { tokill: ['_rev', '_id', '_key'] };
 
 //连接DB
-var db = require('database');
+var db = require('../util/database');
 
 //userDao
-function userDao(req, res, module, method, params) {
+function userDao(module, method, params) {
     //code
 
     //promise
     console.log('userDao');
-    return dao[method](req, res, module, method, params);
+    return dao[method](module, method, params);
 }
 
 //功能Dao--start--
 var dao = {};
 
 //getUserByOpenid
-dao.getUserByOpenid = function (req, res, module, method, params) {
+dao.getUserById = function (module, method, params) {
     //some code
     console.log(JSON.stringify(params));
-    console.log('userDao-getUserByOpenid');
-    if (params.openid) {
-        var openid = params.openid;
-        console.log('openid:' + openid);
-        var AQL = '\n        For i in user\n            FILTER i.openid == \'' + openid + '\' \n            return UNSET(i,@tokill)\n        ';
+    console.log('userDao-getUserById');
+    if (params.id) {
+        var id = params.id;
+        console.log('id:' + id);
+        var AQL = '\n        For i in user\n            FILTER i.id == \'' + id + '\' \n            return UNSET(i,@tokill)\n        ';
         console.log('AQL:' + AQL);
 
         //promise
@@ -84,16 +82,16 @@ dao.insert = function (req, res, module, method, params) {
 };
 
 //updateCode
-dao.updateCode = function (req, res, module, method, params) {
+dao.updateTokenById = function (module, method, params) {
     //some code
     console.dir(params);
-    console.log('userDao-updateCode');
-    if (params.openid && params.code) {
-        var openid = params.openid;
-        var code = params.code;
-        console.log('code:' + code);
-        console.log('openid:' + openid);
-        var AQL = '\n        For i in user\n            FILTER i.openid == \'' + openid + '\' \n            UPDATE i WITH {code: \'' + code + '\' } IN user\n            return UNSET(NEW,@tokill)\n        ';
+    console.log('userDao-updateTokenById');
+    if (params.id && params.token) {
+        var id = params.id;
+        var token = params.token;
+        console.log('id:' + id);
+        console.log('token:' + token);
+        var AQL = '\n        For i in user\n            FILTER i.id == \'' + id + '\' \n            UPDATE i WITH {publishtoken: \'' + token + '\' } IN user\n            return UNSET(NEW,@tokill)\n        ';
         console.log('AQL:' + AQL);
 
         //promise

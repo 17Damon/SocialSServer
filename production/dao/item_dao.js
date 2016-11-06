@@ -64,19 +64,22 @@ dao.getListBySection = function (module, method, params) {
 };
 
 //insert
-dao.insert = function (req, res, module, method, params) {
+dao.insert = function (module, method, params) {
     //some code
 
-    console.log('threadDao-insert');
-    var aqlStr = '299';
-    console.log('aqlStr:' + aqlStr);
-    var AQL = '\n        INSERT {value: ' + aqlStr + '} \n        IN five \n        return NEW\n        ';
-    console.log('AQL:' + AQL);
+    console.log('Item-insert');
+    if (params.item) {
+        var item = JSON.stringify(params.item);
+        var AQL = '\n            INSERT ' + item + '\n            IN test\n            return NEW\n        ';
+        // console.log('AQL:' + AQL);
 
-    //promise
-    return db.query(AQL).then(function (cursor) {
-        return cursor.all();
-    });
+        //promise
+        return db.query(AQL).then(function (cursor) {
+            return cursor.all();
+        });
+    } else {
+        throw 'params.user Undefined!Check it!';
+    }
 };
 
 //edit

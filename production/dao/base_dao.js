@@ -9,6 +9,7 @@
 var dao = {};
 // dao.user = require('user_dao');
 dao.item = require('./item_dao');
+dao.user = require('./user_dao');
 
 //baseDao
 function baseDao(module, method, params) {
