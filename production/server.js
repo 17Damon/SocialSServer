@@ -35,10 +35,10 @@ var PORT = 80;
 var fetch = require('node-fetch');
 var app = (0, _express2.default)();
 //开启gzip
-var compression = require('compression');
+// var compression = require('compression');
 
 // compress all requests
-app.use(compression());
+// app.use(compression());
 
 app.use('/manager', _express2.default.static(_path2.default.join(__dirname, '../admin')));
 app.use(_express2.default.static(_path2.default.join(__dirname, '../dist')));
