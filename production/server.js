@@ -31,7 +31,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var moment = require('moment');
 //数据库
 var baseDao = require('./dao/base_dao');
-var PORT = 80;
+var PORT = 3000;
 var fetch = require('node-fetch');
 var app = (0, _express2.default)();
 //开启gzip
