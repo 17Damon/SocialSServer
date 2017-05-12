@@ -6,7 +6,7 @@
 
 //permission to kill
 
-var tokill = { tokill: ['_rev', '_id', '_key'] };
+var tokill = {tokill: ['_rev', '_id', '_key']};
 
 //连接DB
 var db = require('../util/database');
