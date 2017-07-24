@@ -6,14 +6,14 @@
 
 // database connect 应用启动时已经初始化完成
 
-const host = '139.196.80.85';
-const port = '8529';
-const database = 'myapp';
-const username = 'tester';
-const password = 'cqmygysdss1987';
+var host = '139.196.80.85';
+var port = '8529';
+var database = 'myapp';
+var username = 'tester';
+var password = 'cqmygysdss1987';
 
 var db = require('arangojs')({
-    url: `http://${username}:${password}@${host}:${port}`,
+    url: 'http://' + username + ':' + password + '@' + host + ':' + port,
     databaseName: database
 });
 
