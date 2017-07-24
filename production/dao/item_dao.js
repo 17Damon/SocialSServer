@@ -21,7 +21,7 @@ function itemDao(module, method, params) {
 }
 
 //功能Dao--start--
-var dao = {};
+let dao = {};
 
 //getItemById
 dao.getItemById = function (module, method, params) {
@@ -29,17 +29,21 @@ dao.getItemById = function (module, method, params) {
     console.log(JSON.stringify(params));
     console.log('ItemDao-getItemById');
     if (params.id) {
-        var id = params.id;
+        let id = params.id;
         console.log('id:' + id);
-        var AQL = '\n        For i in test\n            FILTER i.id == \'' + id + '\' \n            return UNSET(i,@tokill)\n        ';
+        var AQL = `
+        For i in test
+            FILTER i.id == \'` + id + `\' 
+            return UNSET(i,@tokill)
+        `;
         console.log('AQL:' + AQL);
 
         //promise
-        return db.query(AQL, tokill).then(function (cursor) {
+        return db.query(AQL, tokill).then(cursor => {
             return cursor.all();
         });
     } else {
-        throw 'params.id Undefined!Check it!';
+        throw `params.id Undefined!Check it!`;
     }
 };
 
@@ -49,17 +53,23 @@ dao.getListBySection = function (module, method, params) {
     console.log(JSON.stringify(params));
     console.log('ItemDao-getListBySection');
     if (params.section) {
-        var section = params.section;
+        let section = params.section;
         console.log('section:' + section);
-        var AQL = '\n        For i in test\n            FILTER i.section == \'' + section + '\' \n            SORT i.id DESC\n            LIMIT 10\n            return UNSET(i,@tokill)\n        ';
+        var AQL = `
+        For i in test
+            FILTER i.section == \'` + section + `\' 
+            SORT i.id DESC
+            LIMIT 10
+            return UNSET(i,@tokill)
+        `;
         console.log('AQL:' + AQL);
 
         //promise
-        return db.query(AQL, tokill).then(function (cursor) {
+        return db.query(AQL, tokill).then(cursor => {
             return cursor.all();
         });
     } else {
-        throw 'params.id Undefined!Check it!';
+        throw `params.id Undefined!Check it!`;
     }
 };
 
@@ -69,16 +79,20 @@ dao.insert = function (module, method, params) {
 
     console.log('Item-insert');
     if (params.item) {
-        var item = JSON.stringify(params.item);
-        var AQL = '\n            INSERT ' + item + '\n            IN test\n            return NEW\n        ';
+        let item = JSON.stringify(params.item);
+        var AQL = `
+            INSERT ` + item + `
+            IN test
+            return NEW
+        `;
         // console.log('AQL:' + AQL);
 
         //promise
-        return db.query(AQL).then(function (cursor) {
+        return db.query(AQL).then(cursor => {
             return cursor.all();
         });
     } else {
-        throw 'params.user Undefined!Check it!';
+        throw `params.user Undefined!Check it!`;
     }
 };
 
@@ -93,7 +107,7 @@ dao.edit = function (req, res, module, method, params) {
 //move
 dao.move = function (req, res, module, method, params) {
     console.log('threadDao-move');
-    var user = JSON.stringify({
+    let user = JSON.stringify({
         openid: 'o7CarwEfoKMx_tWSo54kKFPtkgYA',
         nickname: '십칠오빠😏ૌ😏ૌ😏ૌ',
         sex: 1,
@@ -105,11 +119,15 @@ dao.move = function (req, res, module, method, params) {
         privilege: []
     });
 
-    var AQL = '\n            INSERT ' + user + '\n            IN user\n            return NEW\n        ';
+    var AQL = `
+            INSERT ` + user + `
+            IN user
+            return NEW
+        `;
     console.log('AQL:' + AQL);
 
     //promise
-    return db.query(AQL).then(function (cursor) {
+    return db.query(AQL).then(cursor => {
         return cursor.all();
     });
 };
@@ -129,10 +147,15 @@ dao.queryAql = function (req, res, module, method, params) {
     console.log('threadDao-queryAql');
     var aqlStr = '199';
     console.log('aqlStr:' + aqlStr);
-    var AQL = '\n        For i IN five \n        FILTER i.value == \'199\' \n        UPDATE i WITH { value: \'250\'} IN five \n        return UNSET(NEW,@tokill)\n        ';
+    var AQL = `
+        For i IN five 
+        FILTER i.value == \'199\' 
+        UPDATE i WITH { value: '250'} IN five 
+        return UNSET(NEW,@tokill)
+        `;
     console.log('AQL:' + AQL);
     //returns an array of result.
-    return db.query(AQL, tokill).then(function (cursor) {
+    return db.query(AQL, tokill).then(cursor => {
         return cursor.all();
     });
 };

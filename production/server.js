@@ -1,51 +1,31 @@
-'use strict';
-
-var _express = require('express');
-
-var _express2 = _interopRequireDefault(_express);
-
-var _cors = require('cors');
-
-var _cors2 = _interopRequireDefault(_cors);
-
-var _bodyParser = require('body-parser');
-
-var _bodyParser2 = _interopRequireDefault(_bodyParser);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _apolloServer = require('apollo-server');
-
-var _graphql = require('graphql');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /**
-                                                                                                                                                           * Created by zhubg on 2016/10/17.
-                                                                                                                                                           */
-
-
+/**
+ * Created by zhubg on 2016/10/17.
+ */
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import path from 'path';
+import { apolloExpress } from 'apollo-server';
+import { buildSchema } from 'graphql';
 //日期时间工具
 var moment = require('moment');
 //数据库
 var baseDao = require('./dao/base_dao');
-var PORT = 3000;
+const PORT = 80;
 var fetch = require('node-fetch');
-var app = (0, _express2.default)();
+var app = express();
 //开启gzip
 // var compression = require('compression');
 
 // compress all requests
 // app.use(compression());
 
-app.use('/manager', _express2.default.static(_path2.default.join(__dirname, '../admin')));
-app.use(_express2.default.static(_path2.default.join(__dirname, '../dist')));
+app.use('/manager', express.static(path.join(__dirname, '../admin')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
 var corsOptions = {
     // origin: 'http://192.168.0.104:8989',
-    origin: function origin(_origin, callback) {
+    origin: function (origin, callback) {
         // var originIsWhitelisted = whitelist.indexOf(origin) !== -1;
         var originIsWhitelisted = true;
         callback(originIsWhitelisted ? null : 'Bad Request', originIsWhitelisted);
@@ -54,68 +34,92 @@ var corsOptions = {
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
-var myGraphQLSchema = (0, _graphql.buildSchema)('\n  input MessageInput {\n    section: String\n    title: String\n    detail: String\n  }\n  \n  type Token {\n    token: String!\n  }\n  \n  type Message {\n    id: ID!\n    section: String\n    postingtime: String\n    title: String\n    detail: String\n\n  }\n  \n  type ItemList {\n    section: String!\n    list:[Message]\n  }\n\n  type Query {\n    getMessage(id: ID!): Message\n    checkUser(id: ID!,name:String!,password:String!): Token\n    getItemList(section:String!): ItemList\n  }\n\n  type Mutation {\n    createMessage(token: String,input:MessageInput): Token\n    updateMessage(id: ID!, input: MessageInput): Message\n  }\n');
+const myGraphQLSchema = buildSchema(`
+  input MessageInput {
+    section: String
+    title: String
+    detail: String
+  }
+  
+  type Token {
+    token: String!
+  }
+  
+  type Message {
+    id: ID!
+    section: String
+    postingtime: String
+    title: String
+    detail: String
+
+  }
+  
+  type ItemList {
+    section: String!
+    list:[Message]
+  }
+
+  type Query {
+    getMessage(id: ID!): Message
+    checkUser(id: ID!,name:String!,password:String!): Token
+    getItemList(section:String!): ItemList
+  }
+
+  type Mutation {
+    createMessage(token: String,input:MessageInput): Token
+    updateMessage(id: ID!, input: MessageInput): Message
+  }
+`);
 
 // If Message had any complex fields, we'd put them on this object.
+class Message {
+    constructor(id, { section, postingtime, detail }) {
+        this.id = id;
+        this.section = section;
+        this.postingtime = postingtime;
+        this.title = title;
+        this.detail = detail;
+    }
+}
 
-var Message = function Message(id, _ref) {
-    var section = _ref.section;
-    var postingtime = _ref.postingtime;
-    var detail = _ref.detail;
+class ItemList {
+    constructor(section, list) {
+        this.section = section;
+        this.list = list;
+    }
+}
 
-    _classCallCheck(this, Message);
-
-    this.id = id;
-    this.section = section;
-    this.postingtime = postingtime;
-    this.title = title;
-    this.detail = detail;
-};
-
-var ItemList = function ItemList(section, list) {
-    _classCallCheck(this, ItemList);
-
-    this.section = section;
-    this.list = list;
-};
-
-var Token = function Token(token) {
-    _classCallCheck(this, Token);
-
-    this.token = token;
-};
+class Token {
+    constructor(token) {
+        this.token = token;
+    }
+}
 
 var root = {
-    getMessage: function getMessage(_ref2) {
-        var id = _ref2.id;
-
+    getMessage: function ({ id }) {
         // if (!fakeDatabase[id]) {
         //     throw new Error('no message exists with id ' + id);
         // }
-        var params = {};
+        let params = {};
         params.id = id;
-        return baseDao('item', 'getItemById', params).then(function (obj) {
+        return baseDao('item', 'getItemById', params).then(obj => {
             console.log(obj);
             return new Message(id, obj[0]);
         }).catch(function (e) {
             console.log(e);
         });
     },
-    checkUser: function checkUser(_ref3) {
-        var id = _ref3.id;
-        var name = _ref3.name;
-        var password = _ref3.password;
-
+    checkUser: function ({ id, name, password }) {
         // if (!fakeDatabase[id]) {
         //     throw new Error('no message exists with id ' + id);
         // }
-        var token = require('crypto').randomBytes(10).toString('hex');
-        var params = {};
+        let token = require('crypto').randomBytes(10).toString('hex');
+        let params = {};
         params.id = id;
-        return baseDao('user', 'getUserById', params).then(function (obj) {
+        return baseDao('user', 'getUserById', params).then(obj => {
             if (obj[0].name === name && obj[0].password === password) {
                 params.token = token;
-                return baseDao('user', 'updateTokenById', params).then(function (obj) {
+                return baseDao('user', 'updateTokenById', params).then(obj => {
                     return new Token(obj[0].publishtoken);
                 }).catch(function (e) {
                     console.log(e);
@@ -129,33 +133,28 @@ var root = {
             console.log(e);
         });
     },
-    getItemList: function getItemList(_ref4) {
-        var section = _ref4.section;
-
-        var params = {};
+    getItemList: function ({ section }) {
+        let params = {};
         params.section = section;
-        return baseDao('item', 'getListBySection', params).then(function (obj) {
+        return baseDao('item', 'getListBySection', params).then(obj => {
             return new ItemList(section, obj);
         }).catch(function (e) {
             console.log(e);
         });
     },
-    createMessage: function createMessage(_ref5) {
-        var token = _ref5.token;
-        var input = _ref5.input;
-
+    createMessage: function ({ token, input }) {
         // Create a random id for our "database".
-        var params = {};
+        let params = {};
         // fakeDatabase[id] = input;
         params.id = 'manager';
-        return baseDao('user', 'getUserById', params).then(function (obj) {
+        return baseDao('user', 'getUserById', params).then(obj => {
             if (obj[0].publishtoken === token) {
-                var id = require('crypto').randomBytes(10).toString('hex');
-                var now = moment().format();
+                let id = require('crypto').randomBytes(10).toString('hex');
+                let now = moment().format();
                 params.item = input;
                 params.item.id = id;
                 params.item.postingtime = now;
-                return baseDao('item', 'insert', params).then(function (obj) {
+                return baseDao('item', 'insert', params).then(obj => {
                     return new Token('RightToken');
                 }).catch(function (e) {
                     console.log(e);
@@ -167,10 +166,7 @@ var root = {
             console.log(e);
         });
     },
-    updateMessage: function updateMessage(_ref6) {
-        var id = _ref6.id;
-        var input = _ref6.input;
-
+    updateMessage: function ({ id, input }) {
         if (!fakeDatabase[id]) {
             throw new Error('no message exists with id ' + id);
         }
@@ -215,12 +211,12 @@ var root = {
 //     rootValue: root
 // }));
 
-app.use('/graphql', (0, _cors2.default)(corsOptions), _bodyParser2.default.json(), (0, _apolloServer.apolloExpress)({
+app.use('/graphql', cors(corsOptions), bodyParser.json(), apolloExpress({
     schema: myGraphQLSchema,
     rootValue: root
 }));
 
-app.listen(PORT, function () {
+app.listen(PORT, () => {
     console.log('Running a GraphQL API server at localhost:3000/graphql');
 });
 
